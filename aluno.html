@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E.T.E.M.A.R | Tutor ENEM IA</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <style>
+        :root {
+            --yellow: #2d4ed1;
+            --bg: #f3f4f8;
+            --border: #131c44;
+            --green: #10B981;
+            --red: #EF4444;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: #f3f4f8;
+            color: var(--border);
+            margin: 0;
+            padding: 5% 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #FFFFFF;
+            border-radius: 30px;
+            box-shadow: 0 24px 60px rgba(19, 28, 68, 0.12);
+            padding: 50px;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        @media (max-width: 650px) {
+            .container { padding: 30px 20px; box-shadow: 8px 8px 0px var(--border); }
+            .timer { position: static !important; display: inline-block; margin-bottom: 20px; }
+            h1 { font-size: 32px !important; }
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: 900;
+            text-transform: uppercase;
+            border-bottom: 5px solid var(--border);
+            padding-bottom: 15px;
+            margin-top: 0;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+            margin-top: -10px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        h2 { font-size: 24px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+
+        button {
+            background-color: #fff;
+            color: var(--yellow);
+            border: 2px solid var(--yellow);
+            border-radius: 16px;
+            padding: 16px 24px;
+            font-family: inherit;
+            font-weight: 900;
+            font-size: 16px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0px 6px 18px rgba(45,78,209,0.16);
+            transition: background-color 0.15s ease, color 0.15s ease, transform 0.12s ease, box-shadow 0.12s ease;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background-color: var(--yellow);
+            color: #fff;
+            box-shadow: 0px 10px 24px rgba(45,78,209,0.18);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0px 4px 12px rgba(45,78,209,0.12);
+        }
+
+        button:disabled { 
+            background-color: #E4E4E7; 
+            color: #A1A1AA;
+            cursor: not-allowed; 
+            box-shadow: none; 
+            transform: none; 
+        }
+
+        .btn-reforco {
+            background-color: var(--border);
+            color: #FFFFFF;
+            border-radius: 16px;
+            box-shadow: 0 12px 28px rgba(45, 78, 209, 0.16);
+            display: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-reforco:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 16px 36px rgba(45, 78, 209, 0.2); }
+
+        .caixa { 
+            border: 1px solid rgba(19, 28, 68, 0.12);
+            border-radius: 24px;
+            padding: 34px; 
+            margin-bottom: 30px; 
+            background: #FFFFFF; 
+            box-shadow: 0 18px 40px rgba(19, 28, 68, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .caixa:hover { transform: translateY(-2px); }
+
+        .upload-area {
+            display: block;
+            border: 2px dashed rgba(19, 28, 68, 0.24);
+            border-radius: 22px;
+            padding: 42px 22px;
+            text-align: center;
+            background: #f8f9fc;
+            cursor: pointer;
+            transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+            margin: 20px 0;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            box-shadow: 0 16px 34px rgba(19, 28, 68, 0.05);
+        }
+
+        .upload-area:hover { background: #2d4ed1; color: #FFF; border-color: #2d4ed1; transform: translateY(-2px); box-shadow: 0 22px 42px rgba(45, 78, 209, 0.16); }
+
+        input[type="file"] { display: none; }
+
+        .seletor-qtd { margin: 20px 0; font-family: Arial, sans-serif; }
+        
+        .seletor-qtd label { display: block; font-weight: 900; margin-bottom: 8px; text-transform: uppercase; }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid rgba(19, 28, 68, 0.16);
+            font-size: 18px;
+            font-weight: 700;
+            font-family: Arial, sans-serif;
+            background-color: #F9FAFB;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            box-shadow: inset 0 2px 6px rgba(19, 28, 68, 0.06);
+            text-align: center;
+            border-radius: 16px;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            background-color: #fff;
+            border-color: var(--yellow);
+            color: var(--border);
+            box-shadow: 0 8px 24px rgba(45, 78, 209, 0.14);
+            transform: translateY(-1px);
+        }
+
+        .questao-box {
+            margin-bottom: 40px;
+            padding: 32px;
+            border: 1px solid rgba(19, 28, 68, 0.12);
+            background: #FFFFFF;
+            border-radius: 22px;
+            box-shadow: 0 18px 36px rgba(19, 28, 68, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .questao-box:hover { transform: translateY(-2px); }
+
+        .header-questao {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .tag-tema {
+            background: var(--border);
+            color: var(--yellow);
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-family: Arial, sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .enunciado { font-size: 18px; text-align: justify; margin-bottom: 25px; }
+
+        .opcao-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            cursor: pointer;
+            padding: 16px 18px;
+            border: 1px solid transparent;
+            border-radius: 18px;
+            background: #F9FAFB;
+            transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .opcao-label:hover { border-color: rgba(19, 28, 68, 0.2); background: #eef4ff; color: var(--border); transform: translateX(4px); }
+        .opcao-label input { margin-right: 15px; transform: scale(1.2); }
+
+        .explicacao {
+            display: none;
+            margin-top: 25px;
+            padding: 22px;
+            border-radius: 18px;
+            border-left: 6px solid var(--border);
+            background-color: #eef2ff;
+            font-size: 16px;
+            animation: fadeIn 0.4s ease forwards;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+
+        .dica-tutor {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px dashed var(--border);
+            background-color: #FFF;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        .boletim {
+            text-align: center;
+            background: var(--border);
+            color: #FFFFFF;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 24px 60px rgba(19, 28, 68, 0.18);
+            margin-top: 40px;
+        }
+
+        .timer {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            font-weight: 900;
+            background: #fff;
+            color: var(--border);
+            padding: 10px 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(19, 28, 68, 0.12);
+            box-shadow: 0 14px 28px rgba(19, 28, 68, 0.12);
+            display: none;
+            letter-spacing: 2px;
+        }
+
+        .status-text {
+            margin-top: 20px; font-weight: bold; text-align: center; 
+            font-family: Arial, sans-serif; text-transform: uppercase;
+        }
+
+        .blink { animation: blinker 1.2s linear infinite; }
+
+        @keyframes blinker { 50% { opacity: 0; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="timer" id="timer">00:00</div>
+        
+        <h1>E.T.E.M.A.R</h1>
+        <div class="subtitle">Plataforma de Ensino Adaptativo</div>
+        
+        <div class="caixa" id="painel-upload">
+            <h2>1. CARREGAR CONHECIMENTO</h2>
+            <p>Anexe o material em PDF. A IA analisará os temas, cruzará com o seu histórico e gerará um simulado coerente e lógico.</p>
+            
+            <label class="upload-area" id="drop-area">
+                <span style="font-size: 24px; display: block; margin-bottom: 10px;">📄</span>
+                <span id="file-name">CLIQUE OU ARRASTE SEU PDF AQUI</span>
+                <input type="file" id="arquivoPDF" accept="application/pdf">
+            </label>
+
+            <!-- AQUI ESTÁ A TRAVA VISUAL QUE CORRIGE O NÚMERO NA HORA -->
+            <div class="seletor-qtd">
+                <label for="qtdQuestoes">NÚMERO DE QUESTÕES (MÁXIMO 20):</label>
+                <input type="number" id="qtdQuestoes" min="1" max="20" value="5" 
+                       oninput="if(this.value > 20) this.value = 20; if(this.value < 1 && this.value !== '') this.value = 1;">
+            </div>
+
+            <button type="button" onclick="gerarSimulado(false)" id="btnProcessar" disabled>PROCESSAR E GERAR SIMULADO</button>
+            <div id="status" class="status-text blink" style="display: none;"></div>
+        </div>
+
+        <div id="painel-prova" style="display: none;">
+            <h2 id="titulo-prova" style="font-size: 26px; margin-bottom: 30px; text-transform: uppercase;"></h2>
+            <div id="area-questoes"></div>
+            <button type="button" onclick="corrigirSimulado()" style="font-size: 20px; padding: 20px; background: var(--border); color: var(--yellow);">ENTREGAR CARTÃO-RESPOSTA</button>
+        </div>
+
+        <div id="painel-resultado" class="boletim" style="display: none;">
+            <h2 style="border-color: transparent; margin: 0; color: var(--yellow);">BOLETIM DE DESEMPENHO</h2>
+            <h1 id="nota-final" style="font-size: 80px; margin: 20px 0; border: none; color: #FFF;"></h1>
+            <p style="font-size: 18px; margin-bottom: 30px; font-family: Arial, sans-serif;">Revise a explicação do tutor nas questões acima.</p>
+            
+            <button type="button" onclick="location.reload()" style="background-color: #FFF; color: var(--border); width: auto; margin-right: 10px;">INICIAR NOVO CICLO</button>
+            <button type="button" id="btnReforco" class="btn-reforco" onclick="gerarSimulado(true)" style="width: auto;">🧠 GERAR SIMULADO DE REFORÇO</button>
+        </div>
+    </div>
+
+    <script>
+        let simuladoAtual = null;
+        let textoExtraido = ""; 
+        let tempoSegundos = 0;
+        let intervaloTimer = null;
+
+        document.getElementById('arquivoPDF').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || "CLIQUE OU ARRASTE SEU PDF AQUI";
+            document.getElementById('file-name').innerText = fileName.toUpperCase();
+            document.getElementById('btnProcessar').disabled = !e.target.files.length;
+        });
+
+        function formatarTempo(segundos) {
+            const min = Math.floor(segundos / 60).toString().padStart(2, '0');
+            const seg = (segundos % 60).toString().padStart(2, '0');
+            return `${min}:${seg}`;
+        }
+
+        async function extrairTextoPDF(arquivo) {
+            if (typeof pdfjsLib === 'undefined') throw new Error("Biblioteca PDF.js não carregou.");
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+            
+            const arrayBuffer = await arquivo.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({data: new Uint8Array(arrayBuffer)}).promise;
+            let texto = "";
+            const limitPages = Math.min(pdf.numPages, 8); // Extrair até 8 páginas de conhecimento para não faltar contexto em 20 questões
+            
+            for(let i=1; i<=limitPages; i++) {
+                const pg = await pdf.getPage(i);
+                const ct = await pg.getTextContent();
+                texto += ct.items.map(s=>s.str).join(" ") + " ";
+            }
+            return texto;
+        }
+
+        async function gerarSimulado(isReforco = false) {
+            const btn = document.getElementById('btnProcessar');
+            const status = document.getElementById('status');
+            
+            let qtdInput = document.getElementById('qtdQuestoes').value;
+            let quantidade = Math.min(Math.max(parseInt(qtdInput) || 5, 1), 20); // Dupla proteção via JS
+            
+            document.getElementById('painel-resultado').style.display = 'none';
+            document.getElementById('painel-upload').style.display = 'block';
+            status.style.display = 'block';
+            
+            if(!isReforco) {
+                const arquivo = document.getElementById('arquivoPDF').files[0];
+                btn.style.display = 'none';
+                status.innerText = ">> EXTRAINDO DADOS DO DOCUMENTO...";
+                
+                try {
+                    textoExtraido = await extrairTextoPDF(arquivo);
+                } catch(e) {
+                    status.innerText = "ERRO: " + e.message;
+                    status.classList.remove('blink');
+                    btn.style.display = 'block';
+                    return;
+                }
+            }
+
+            status.innerText = isReforco 
+                ? ">> CRUZANDO SEUS ERROS E GERANDO PROVA DE REFORÇO..." 
+                : `>> GERANDO ${quantidade} QUESTÕES LÓGICAS (ISSO PODE LEVAR ALGUNS MINUTOS)...`;
+
+            try {
+                const req = await fetch("http://127.0.0.1:3000/api/simulado", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        texto: textoExtraido, 
+                        reforco: isReforco,
+                        quantidade: quantidade
+                    })
+                });
+
+                if (!req.ok) throw new Error("A IA falhou em estruturar o arquivo (Tente gerar menos questões se o texto for muito curto).");
+                
+                const dados = await req.json();
+                montarProva(dados);
+
+            } catch(e) {
+                status.innerText = "FALHA CRÍTICA: " + e.message;
+                status.classList.remove('blink');
+            } finally {
+                if(!isReforco && status.innerText.includes("FALHA")) btn.style.display = 'block';
+            }
+        }
+
+        function montarProva(dados) {
+            simuladoAtual = dados;
+            document.getElementById('painel-upload').style.display = 'none';
+            document.getElementById('status').style.display = 'none';
+            document.getElementById('painel-prova').style.display = 'block';
+            document.getElementById('titulo-prova').innerText = dados.titulo;
+            
+            tempoSegundos = 0;
+            document.getElementById('timer').style.display = 'block';
+            clearInterval(intervaloTimer);
+            intervaloTimer = setInterval(() => {
+                tempoSegundos++;
+                document.getElementById('timer').innerText = formatarTempo(tempoSegundos);
+            }, 1000);
+
+            let html = "";
+            dados.questoes.forEach((q, i) => {
+                let opcoesHtml = q.opcoes.map((op, idx) => {
+                    // Garantia para caso a IA esqueça as letras nas alternativas
+                    let prefix = op.substring(0,2).includes(")") ? op.substring(0,2) : String.fromCharCode(65+idx)+")";
+                    let text = op.substring(0,2).includes(")") ? op.substring(2) : op;
+                    
+                    return `
+                    <label class="opcao-label" id="label-q${i}-op${idx}">
+                        <input type="radio" name="q${i}" value="${idx}"> 
+                        <span><strong>${prefix}</strong> ${text}</span>
+                    </label>
+                    `;
+                }).join('');
+
+                html += `
+                    <div class="questao-box" id="caixa-q${i}">
+                        <div class="header-questao">
+                            <strong>QUESTÃO ${i+1}</strong>
+                            <span class="tag-tema">🧠 ${q.tema_especifico || "Geral"}</span>
+                        </div>
+                        <div class="enunciado">${q.pergunta.replace(/\n/g, '<br>')}</div>
+                        ${opcoesHtml}
+                        <div class="explicacao" id="exp-q${i}">
+                            <strong>ANÁLISE DO TUTOR:</strong><br><br>${q.explicacao.replace(/\n/g, '<br>')}
+                            <div class="dica-tutor">💡 ESTRATÉGIA: ${q.dica_tutor || "Revise este tema cuidadosamente."}</div>
+                        </div>
+                    </div>`;
+            });
+
+            document.getElementById('area-questoes').innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        function corrigirSimulado() {
+            clearInterval(intervaloTimer);
+            let acertos = 0;
+            const total = simuladoAtual.questoes.length;
+            
+            let temasCertos =[];
+            let temasErrados =[];
+
+            simuladoAtual.questoes.forEach((q, i) => {
+                const marcado = document.querySelector(`input[name="q${i}"]:checked`);
+                const divQuestao = document.getElementById(`caixa-q${i}`);
+                const divExp = document.getElementById(`exp-q${i}`);
+                
+                divExp.style.display = "block"; 
+
+                if (marcado && parseInt(marcado.value) === q.correta) {
+                    acertos++;
+                    temasCertos.push(q.tema_especifico);
+                    divQuestao.style.borderColor = "var(--green)";
+                    divQuestao.style.backgroundColor = "#ECFDF5";
+                } else {
+                    temasErrados.push(q.tema_especifico);
+                    divQuestao.style.borderColor = "var(--red)";
+                    divQuestao.style.backgroundColor = "#FEF2F2";
+                    if (marcado) {
+                        const labelMarcada = document.getElementById(`label-q${i}-op${marcado.value}`);
+                        labelMarcada.style.color = "var(--red)";
+                        labelMarcada.style.textDecoration = "line-through";
+                    }
+                }
+                
+                const labelCorreta = document.getElementById(`label-q${i}-op${q.correta}`);
+                if(labelCorreta) {
+                    labelCorreta.style.color = "var(--green)";
+                    labelCorreta.style.fontWeight = "bold";
+                    labelCorreta.style.border = "2px solid var(--green)";
+                }
+                
+                document.getElementsByName(`q${i}`).forEach(opt => opt.disabled = true);
+            });
+
+            fetch("http://127.0.0.1:3000/api/resultado", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({temas_certos: temasCertos, temas_errados: temasErrados})
+            }).catch(e => console.error("Erro ao comunicar banco", e));
+
+            document.getElementById('painel-resultado').style.display = 'block';
+            document.getElementById('nota-final').innerText = `${acertos} / ${total}`;
+            
+            const btnReforco = document.getElementById('btnReforco');
+            if(temasErrados.length > 0) {
+                btnReforco.style.display = "inline-block";
+            } else {
+                btnReforco.style.display = "none";
+            }
+
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
