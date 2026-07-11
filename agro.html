@@ -2,139 +2,359 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>E.T.E.M.A.R | Agro Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ETEMAR | Intelligence</title>
+    
+    <!-- Fontes Premium: DM Serif (Elegante) e Outfit (Moderna e Limpa) -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
         :root {
-            --agro-dark: #064E3B; --agro-main: #059669; --agro-light: #D1FAE5;
-            --tag-user: #DC2626; --tag-oficial: #2563EB; --tag-ia: #D97706;
-            --bg: #F8FAFC; --panel-bg: #FFFFFF; --border: #E2E8F0;
+            /* PALETA SUNDIAL / EARTHY AGRO */
+            --bg-sand: #F9F6F0; /* Areia quente claro */
+            --card-white: #FFFFFF;
+            
+            --pine-green: #1E3F33; /* Verde Pinheiro Escuro */
+            --terracotta: #D95D39; /* Laranja/Barro queimado */
+            --sun-yellow: #F4A261; /* Amarelo sol */
+            
+            --text-dark: #2A363B;
+            --text-muted: #6B7A82;
+            
+            --border-soft: #E8E3DA;
+            --radius-large: 24px;
+            --radius-pill: 50px;
+            
+            --shadow-soft: 0 10px 30px rgba(30, 63, 51, 0.05);
+            --shadow-hover: 0 15px 35px rgba(217, 93, 57, 0.15);
         }
 
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #1E293B; margin: 0; display: flex; height: 100vh; }
-        .sidebar { width: 260px; background: var(--agro-dark); color: #FFF; padding: 30px 20px; z-index: 100; }
-        .logo { font-size: 26px; font-weight: 800; color: #F59E0B; margin-bottom: 50px; }
-        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        html, body { max-width: 100vw; overflow-x: hidden; scroll-behavior: smooth; }
         
-        .header-title { border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;}
-        .header-title h1 { margin: 0; font-size: 28px; color: var(--agro-dark); }
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: var(--bg-sand); 
+            color: var(--text-dark); 
+            margin: 0; 
+            display: flex; 
+            height: 100vh; 
+        }
         
-        /* Legenda de Rastreabilidade */
-        .legendas-tags { display: flex; gap: 15px; font-size: 13px; font-weight: 600; }
-        .tag { padding: 4px 8px; border-radius: 4px; color: #FFF; }
-        .t-user { background: var(--tag-user); } .t-oficial { background: var(--tag-oficial); } .t-ia { background: var(--tag-ia); }
-
-        .chat-container { background: var(--panel-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 30px; }
-        .chat-history { max-height: 200px; overflow-y: auto; margin-bottom: 15px; display: none; padding: 10px; background: #F8FAFC; border-radius: 8px; font-size: 14px;}
-        textarea { width: 100%; height: 80px; padding: 15px; border: 2px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 15px; resize: none; box-sizing: border-box;}
-        textarea:focus { outline: none; border-color: var(--agro-main); }
-        button.btn-send { background: var(--agro-main); color: #FFF; border: none; border-radius: 8px; padding: 12px 25px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        /* SCROLLBAR INVISÍVEL/ELEGANTE */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #D0C9C0; border-radius: 10px; }
         
-        .dashboard-grid { display: none; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .card { background: var(--panel-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); }
-        .card h3 { margin-top: 0; color: var(--agro-dark); font-size: 17px; border-bottom: 2px solid var(--bg); padding-bottom: 10px; display: flex; justify-content: space-between;}
-        .card p { font-size: 15px; line-height: 1.6; color: #334155; }
+        /* SIDEBAR FLUTUANTE (BENTO STYLE) */
+        .sidebar-container {
+            padding: 30px 0 30px 30px;
+            width: 280px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
 
-        /* Matriz de Confiança */
-        .confianca-item { margin-bottom: 12px; }
-        .confianca-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-        .bar-bg { width: 100%; background: #E2E8F0; border-radius: 4px; height: 8px; overflow: hidden; }
-        .bar-fill { height: 100%; border-radius: 4px; }
+        .sidebar { 
+            background: var(--pine-green); 
+            color: #FFF; 
+            height: 100%;
+            border-radius: var(--radius-large);
+            padding: 40px 20px; 
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-soft);
+        }
 
-        /* Plano de Ação */
-        .plano-acao { display: none; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-        .acao-box { background: #FFFBEB; border-left: 4px solid #D97706; padding: 15px; border-radius: 0 8px 8px 0; }
-        .acao-box h4 { margin: 0 0 5px 0; color: #92400E; font-size: 14px; text-transform: uppercase; }
-        .acao-box p { margin: 0; font-size: 14px; color: #78350F; }
+        .logo { 
+            font-family: 'DM Serif Display', serif;
+            font-size: 32px; 
+            color: var(--sun-yellow); 
+            margin-bottom: 50px; 
+            letter-spacing: 1px;
+            text-align: center;
+        }
 
-        /* Calculadora Transparente */
-        .finance-card { background: #FEF2F2; border-color: #FECACA; }
-        .memoria-calculo { font-family: monospace; background: #FFF; padding: 10px; border: 1px dashed #F87171; font-size: 13px; color: #991B1B; margin-top: 15px; }
-        .finance-value { font-size: 24px; font-weight: 800; color: #DC2626; }
+        .menu-item { 
+            padding: 15px 20px; 
+            margin-bottom: 15px; 
+            border-radius: var(--radius-pill); 
+            cursor: pointer; 
+            font-weight: 500; 
+            transition: all 0.3s ease; 
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .menu-item.active { background: var(--terracotta); color: #FFF; box-shadow: var(--shadow-hover);}
+        .menu-item:hover:not(.active) { background: rgba(255,255,255,0.1); }
 
-        .charts-grid { display: none; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .chart-box { background: var(--panel-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); height: 350px; }
+        /* MAIN CONTENT */
+        .main-content { flex: 1; padding: 30px 40px; overflow-y: auto; height: 100vh; box-sizing: border-box; }
+        
+        .mobile-header { display: none; background: var(--bg-sand); padding: 15px 20px; align-items: center; justify-content: space-between; z-index: 99; position: fixed; top: 0; width: 100%; box-sizing: border-box;}
+        .menu-btn { background: var(--pine-green); color: #FFF; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 20px; cursor: pointer; }
+        
+        .header-title { margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px;}
+        .header-title h1 { 
+            margin: 0; 
+            font-family: 'DM Serif Display', serif;
+            font-size: 42px; 
+            color: var(--pine-green); 
+            line-height: 1.1;
+        }
+        .header-title p { margin: 5px 0 0 0; color: var(--text-muted); font-size: 16px; }
+
+        /* CHAT INTERFACE (Estilo iMessage Minimalista) */
+        .chat-container { 
+            background: var(--card-white); 
+            padding: 30px; 
+            border-radius: var(--radius-large); 
+            box-shadow: var(--shadow-soft); 
+            border: 1px solid var(--border-soft); 
+            margin-bottom: 30px; 
+        }
+
+        .chat-history { max-height: 250px; overflow-y: auto; margin-bottom: 20px; display: none; padding-right: 10px; }
+        
+        .msg-user { 
+            background: var(--bg-sand); 
+            color: var(--text-dark); 
+            padding: 15px 20px; 
+            border-radius: 20px 20px 0 20px; 
+            margin-bottom: 15px; 
+            max-width: 80%; 
+            margin-left: auto;
+            font-weight: 500;
+        }
+        
+        .msg-ia { 
+            background: var(--pine-green); 
+            color: #FFF; 
+            padding: 15px 20px; 
+            border-radius: 20px 20px 20px 0; 
+            margin-bottom: 15px; 
+            max-width: 80%; 
+            font-weight: 400;
+        }
+
+        .input-group { display: flex; gap: 15px; align-items: flex-end; }
+        
+        textarea { 
+            flex: 1; 
+            height: 60px; 
+            padding: 18px 25px; 
+            border: 1px solid var(--border-soft); 
+            border-radius: var(--radius-pill); 
+            font-family: inherit; 
+            font-size: 16px; 
+            resize: none; 
+            background: var(--bg-sand);
+            transition: 0.3s;
+        }
+        textarea:focus { outline: none; border-color: var(--terracotta); background: #FFF; box-shadow: 0 0 0 4px rgba(217, 93, 57, 0.1); }
+        
+        button.btn-send { 
+            background: var(--terracotta); 
+            color: #FFF; 
+            border: none; 
+            border-radius: var(--radius-pill); 
+            height: 60px;
+            padding: 0 35px; 
+            font-weight: 600; 
+            font-size: 16px; 
+            cursor: pointer; 
+            transition: 0.3s;
+        }
+        button.btn-send:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+
+        /* GRIDS & CARDS (Bento Box Layout) */
+        .dashboard-grid { display: none; grid-template-columns: 1.5fr 1fr; gap: 25px; margin-bottom: 25px; width: 100%; }
+        
+        .card { 
+            background: var(--card-white); 
+            padding: 35px; 
+            border-radius: var(--radius-large); 
+            border: 1px solid var(--border-soft); 
+            box-shadow: var(--shadow-soft);
+        }
+        
+        .card h3 { 
+            margin: 0 0 20px 0; 
+            color: var(--pine-green); 
+            font-family: 'DM Serif Display', serif;
+            font-size: 24px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        
+        .tag-minimal { font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; background: var(--bg-sand); color: var(--terracotta); }
+
+        .card p { font-size: 16px; line-height: 1.7; color: var(--text-muted); font-weight: 300; }
+
+        /* BARRAS DE CONFIANÇA ORGANICAS */
+        .confianca-item { margin-bottom: 18px; }
+        .confianca-label { display: flex; justify-content: space-between; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: var(--text-dark); }
+        .bar-bg { width: 100%; background: var(--bg-sand); border-radius: 10px; height: 10px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 10px; transition: 1s ease-out; }
+
+        /* PLANO DE AÇÃO HORIZONTAL */
+        .plano-acao { display: none; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; width: 100%; }
+        .acao-box { 
+            background: var(--card-white); 
+            padding: 25px; 
+            border-radius: var(--radius-large); 
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            overflow: hidden;
+        }
+        .acao-box::before { content:''; position:absolute; top:0; left:0; width:100%; height:4px; background: var(--terracotta); }
+        .acao-box h4 { margin: 0 0 10px 0; color: var(--pine-green); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+        .acao-box p { margin: 0; font-size: 15px; color: var(--text-muted); line-height: 1.5; }
+
+        /* CARD FINANCEIRO CLEAN */
+        .finance-card { background: var(--pine-green); color: #FFF; border: none; }
+        .finance-card h3 { color: var(--sun-yellow); }
+        
+        .finance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .finance-box { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 16px; }
+        .f-label { display: block; font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .f-val { font-size: 18px; font-weight: 500; color: #FFF; }
+        
+        .finance-result { margin-bottom: 20px; }
+        .r-label { display: block; font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; }
+        .r-total { font-family: 'DM Serif Display', serif; font-size: 46px; color: var(--terracotta); line-height: 1.1; margin: 5px 0; }
+        
+        .memoria-calculo { font-family: monospace; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; font-size: 12px; color: rgba(255,255,255,0.7); }
+
+        /* GRÁFICOS */
+        .charts-grid { display: none; grid-template-columns: 1fr 1fr; gap: 25px; width: 100%; padding-bottom: 50px;}
+        .chart-box { background: var(--card-white); padding: 25px; border-radius: var(--radius-large); border: 1px solid var(--border-soft); height: 380px; width: 100%; min-width: 0; box-shadow: var(--shadow-soft); }
+
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30, 63, 51, 0.4); backdrop-filter: blur(4px); z-index: 90; }
+
+        @media (max-width: 1000px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            body { display: block; overflow-y: auto; }
+            .mobile-header { display: flex; }
+            .sidebar-container { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); padding: 0; width: 280px; transition: 0.3s; }
+            .sidebar { border-radius: 0; padding-top: 80px; }
+            .sidebar-container.active { transform: translateX(0); }
+            .overlay.active { display: block; }
+            .main-content { padding: 100px 20px 20px 20px; height: auto; overflow: hidden; }
+            
+            .plano-acao, .charts-grid { grid-template-columns: 1fr; }
+            .header-title h1 { font-size: 32px; }
+            
+            .input-group { flex-direction: column; }
+            textarea { height: 100px; border-radius: 20px; }
+            button.btn-send { width: 100%; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="logo">E.T.E.M.A.R<span>.</span></div>
-        <div class="menu-item active">🌾 Lógica & Diagnóstico</div>
+    <div class="mobile-header">
+        <div style="font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--pine-green);">ETEMAR<span style="color:var(--terracotta);">.</span></div>
+        <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <!-- SIDEBAR FLUTUANTE BENTO -->
+    <div class="sidebar-container" id="sidebar">
+        <div class="sidebar">
+            <div class="logo">ETEMAR<span style="color:var(--terracotta);">.</span></div>
+            <div class="menu-item active">✨ Diagnóstico Copilot</div>
+            <div class="menu-item" style="opacity: 0.5;">📊 Cotações (Breve)</div>
+            <div class="menu-item" style="opacity: 0.5;">⚙️ Configurações</div>
+        </div>
     </div>
 
     <div class="main-content">
         <div class="header-title">
-            <h1>Relatório Agronômico Sênior</h1>
-            <div class="legendas-tags">
-                <span class="tag t-user">🔴 Relato do Produtor</span>
-                <span class="tag t-oficial">🔵 Base Oficial</span>
-                <span class="tag t-ia">🟡 Projeção IA</span>
+            <div>
+                <h1>Inteligência Agronômica</h1>
+                <p>Análise de risco, clima e projeção financeira em tempo real.</p>
             </div>
         </div>
 
         <div class="chat-container">
             <div class="chat-history" id="chatHistory"></div>
-            <textarea id="pergunta" placeholder="Ex: Tive quebra na safra de Manga Tommy em Juazeiro-BA. Seca severa nos últimos meses na minha área de 80ha. Compare com safras antigas e dê plano de ação."></textarea>
-            <button class="btn-send" onclick="consultarIA()">PROCESSAR DADOS</button>
-            <div id="status" style="display:none; color: var(--agro-main); margin-top:10px; font-weight:bold;">Calculando variáveis climáticas e produtividade...</div>
+            
+            <div class="input-group">
+                <textarea id="pergunta" placeholder="Ex: Tive quebra na safra de uva vitoria e perdi 50% de 20 hectares por conta de calor. Compare safras e me dê ação."></textarea>
+                <button class="btn-send" onclick="consultarIA()">Processar Análise</button>
+            </div>
+            
+            <div id="status" style="display:none; color: var(--terracotta); margin-top:15px; font-weight:500; font-size: 14px;">✦ O algoritmo está cruzando dados. Aguarde...</div>
         </div>
 
-        <!-- PLANO DE AÇÃO -->
         <div class="plano-acao" id="planoAcaoGrid">
             <div class="acao-box">
-                <h4>🔴 Ação Imediata (48h)</h4>
+                <h4>Ação Imediata</h4>
                 <p id="txt-acao-imediata"></p>
             </div>
             <div class="acao-box">
-                <h4>🟡 Próximos 30 Dias</h4>
+                <h4>Próximos 30 Dias</h4>
                 <p id="txt-acao-30"></p>
             </div>
             <div class="acao-box">
-                <h4>🔵 Próxima Safra</h4>
+                <h4>Próxima Safra</h4>
                 <p id="txt-acao-safra"></p>
             </div>
         </div>
 
-        <!-- DASHBOARD -->
         <div class="dashboard-grid" id="dashGrid">
             <div class="card">
-                <h3><span>🧠 Diagnóstico Técnico</span> <span class="tag t-ia">IA</span></h3>
-                <div id="matriz-confianca" style="margin-bottom: 20px;"></div>
+                <h3>Diagnóstico Técnico <span class="tag-minimal">Inteligência AI</span></h3>
+                <div id="matriz-confianca" style="margin-bottom: 25px;"></div>
                 <p id="txt-fitossanitario"></p>
-            </div>
-            <div class="card">
-                <h3><span>🌦️ Clima & Safra Histórica</span> <span class="tag t-oficial" id="fonte-clima">INMET</span></h3>
-                <p id="txt-clima"></p>
-            </div>
-            
-            <div class="card">
-                <h3><span>💰 Análise de Mercado</span> <span class="tag t-oficial" id="fonte-mercado">CEPEA</span></h3>
-                <p id="txt-mercado"></p>
             </div>
             
             <div class="card finance-card">
-                <h3><span>📉 Fechamento Financeiro</span> <span class="tag t-user">ÁREA</span></h3>
-                <div>
-                    <span style="font-size: 13px; font-weight: bold; color: #991B1B;">PRODUÇÃO PERDIDA:</span>
-                    <div class="finance-value" id="val-producao" style="color:#7F1D1D; font-size:18px;"></div>
+                <h3>Auditoria Financeira <span class="tag-minimal" style="background: rgba(255,255,255,0.1); color:#FFF;">Balanço</span></h3>
+                
+                <div class="finance-result">
+                    <span class="r-label">Prejuízo Estimado</span>
+                    <div class="r-total" id="val-prejuizo">--</div>
                 </div>
-                <div style="margin-top: 10px;">
-                    <span style="font-size: 13px; font-weight: bold; color: #991B1B;">PREJUÍZO TOTAL:</span>
-                    <div class="finance-value" id="val-prejuizo"></div>
+
+                <div class="finance-grid">
+                    <div class="finance-box"><span class="f-label">Área Base</span><span class="f-val" id="val-area">--</span></div>
+                    <div class="finance-box"><span class="f-label">Produtividade</span><span class="f-val" id="val-prod">--</span></div>
+                    <div class="finance-box"><span class="f-label" style="color:var(--sun-yellow);">Taxa Quebra</span><span class="f-val" id="val-taxa">--</span></div>
+                    <div class="finance-box"><span class="f-label">Cotação Base</span><span class="f-val" id="val-preco">--</span></div>
                 </div>
+
                 <div class="memoria-calculo">
-                    <strong>🧮 MEMÓRIA DE CÁLCULO (Transparência):</strong><br>
-                    <span id="memoria-txt"></span>
+                    <span style="color: var(--sun-yellow);">/* CÁLCULO APLICADO */</span><br>
+                    <span id="memoria-txt">--</span>
                 </div>
             </div>
         </div>
 
-        <div class="charts-grid" id="chartsGrid"></div>
+        <div class="charts-grid" id="chartsGrid">
+            <div class="chart-box"><canvas id="grafico0"></canvas></div>
+            <div class="chart-box"><canvas id="grafico1"></canvas></div>
+        </div>
     </div>
 
     <script>
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function formatarTexto(txt) {
+            if(!txt) return "";
+            return txt.replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--pine-green); font-weight:600;">$1</strong>').replace(/\n/g, '<br><br>');
+        }
+
         let historicoChat = [];
         let instanciasGraficos = [];
 
@@ -145,11 +365,17 @@
 
             document.getElementById('status').style.display = 'block';
             document.getElementById('chatHistory').style.display = 'block';
-            document.getElementById('chatHistory').innerHTML += `<div style="color:#475569; font-style:italic; margin-bottom:10px;">[🔴 Produtor]: ${txt}</div>`;
+            
+            // Design de bolha do iMessage
+            document.getElementById('chatHistory').innerHTML += `<div class="msg-user">${txt}</div>`;
             historicoChat.push({"role": "user", "content": txt});
             input.value = "";
 
+            const chatBox = document.getElementById('chatHistory');
+            chatBox.scrollTop = chatBox.scrollHeight;
+
             try {
+                // ATENÇÃO: Aqui conectamos ao servidor
                 const req = await fetch("http://127.0.0.1:3001/api/agro/consultar", {
                     method: "POST", headers: {"Content-Type": "application/json"},
                     body: JSON.stringify({ pergunta: txt, historico: historicoChat })
@@ -158,31 +384,22 @@
                 const dados = await req.json();
 
                 if(dados.precisa_info) {
-                    document.getElementById('chatHistory').innerHTML += `<div style="color:var(--agro-dark); font-weight:bold; margin-bottom:10px;">[🤖 Sistema]: ${dados.pergunta_ia}</div>`;
+                    document.getElementById('chatHistory').innerHTML += `<div class="msg-ia">${dados.pergunta_ia}</div>`;
                     historicoChat.push({"role": "assistant", "content": dados.pergunta_ia});
+                    chatBox.scrollTop = chatBox.scrollHeight;
                 } else {
                     document.getElementById('dashGrid').style.display = 'grid';
                     document.getElementById('planoAcaoGrid').style.display = 'grid';
                     document.getElementById('chartsGrid').style.display = 'grid';
 
-                    // Rastros de Fonte
-                    document.getElementById('fonte-clima').innerText = dados.rastreabilidade.fonte_clima;
-                    document.getElementById('fonte-mercado').innerText = dados.rastreabilidade.fonte_mercado;
+                    document.getElementById('txt-fitossanitario').innerHTML = formatarTexto(dados.diagnostico.texto);
+                    document.getElementById('txt-acao-imediata').innerHTML = formatarTexto(dados.plano_acao.imediato);
+                    document.getElementById('txt-acao-30').innerHTML = formatarTexto(dados.plano_acao.dias_30);
+                    document.getElementById('txt-acao-safra').innerHTML = formatarTexto(dados.plano_acao.proxima_safra);
 
-                    // Textos
-                    document.getElementById('txt-fitossanitario').innerText = dados.diagnostico.texto;
-                    document.getElementById('txt-clima').innerText = dados.textos_extras.clima;
-                    document.getElementById('txt-mercado').innerText = dados.textos_extras.mercado;
-
-                    // Plano de Ação
-                    document.getElementById('txt-acao-imediata').innerText = dados.plano_acao.imediato;
-                    document.getElementById('txt-acao-30').innerText = dados.plano_acao.dias_30;
-                    document.getElementById('txt-acao-safra').innerText = dados.plano_acao.proxima_safra;
-
-                    // Matriz de Confiança
                     let htmlMatriz = "";
                     dados.diagnostico.matriz_confianca.forEach(item => {
-                        let cor = item.probabilidade > 70 ? '#DC2626' : (item.probabilidade > 40 ? '#D97706' : '#059669');
+                        let cor = item.probabilidade > 70 ? 'var(--terracotta)' : (item.probabilidade > 40 ? 'var(--sun-yellow)' : 'var(--pine-green)');
                         htmlMatriz += `
                             <div class="confianca-item">
                                 <div class="confianca-label"><span>${item.causa}</span> <span>${item.probabilidade}%</span></div>
@@ -192,38 +409,36 @@
                     });
                     document.getElementById('matriz-confianca').innerHTML = htmlMatriz;
 
-                    // Financeiro Matemático
-                    document.getElementById('val-producao').innerText = dados.financeiro.perda_toneladas;
-                    document.getElementById('val-prejuizo').innerText = dados.financeiro.prejuizo_total;
-                    document.getElementById('memoria-txt').innerText = dados.financeiro.memoria_calculo;
+                    document.getElementById('val-area').innerText = dados.financeiro.premissas.area;
+                    document.getElementById('val-prod').innerText = dados.financeiro.premissas.produtividade_media;
+                    document.getElementById('val-taxa').innerText = dados.financeiro.impacto.taxa_perda;
+                    document.getElementById('val-preco').innerText = dados.financeiro.premissas.cotacao_atual;
+                    document.getElementById('val-prejuizo').innerText = dados.financeiro.resultado;
+                    document.getElementById('memoria-txt').innerText = dados.financeiro.formula_aplicada;
 
-                    renderizarGraficos(dados.graficos);
+                    setTimeout(() => renderizarGraficos(dados.graficos), 100);
                 }
             } catch (e) {
-                alert("Erro: " + e.message);
+                alert("Erro de conexão: " + e.message);
             } finally {
                 document.getElementById('status').style.display = 'none';
             }
         }
 
         function renderizarGraficos(listaGraficos) {
-            const container = document.getElementById('chartsGrid');
-            container.innerHTML = "";
             instanciasGraficos.forEach(g => g.destroy());
             instanciasGraficos = [];
 
             if(!listaGraficos) return;
 
             listaGraficos.forEach((gData, i) => {
-                const div = document.createElement('div');
-                div.className = 'chart-box';
-                const canvas = document.createElement('canvas');
-                div.appendChild(canvas);
-                container.appendChild(div);
-
+                const canvas = document.getElementById(`grafico${i}`);
+                if(!canvas) return;
                 const ctx = canvas.getContext('2d');
+                
                 let isLine = gData.tipo === 'line';
-                let cor = i === 0 ? '#059669' : '#D97706';
+                // Cores da paleta Sundial para os gráficos
+                let cor = i === 0 ? '#1E3F33' : '#D95D39'; // Verde e Terracota
 
                 instanciasGraficos.push(new Chart(ctx, {
                     type: isLine ? 'line' : 'bar',
@@ -232,11 +447,24 @@
                         datasets: [{
                             label: gData.titulo,
                             data: gData.dados,
-                            backgroundColor: isLine ? cor+'20' : cor,
-                            borderColor: cor, borderWidth: 2, fill: true
+                            backgroundColor: isLine ? cor+'15' : cor,
+                            borderColor: cor, 
+                            borderWidth: 2, 
+                            fill: true,
+                            borderRadius: isLine ? 0 : 8
                         }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false }
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        plugins: { 
+                            legend: { labels: { font: { family: "'Outfit', sans-serif" } } } 
+                        },
+                        scales: {
+                            x: { grid: { display: false } },
+                            y: { border: { dash: [4, 4] }, grid: { color: '#E8E3DA' } }
+                        }
+                    }
                 }));
             });
         }
