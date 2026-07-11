@@ -377,10 +377,10 @@
             try {
                 // ATENÇÃO: Aqui conectamos ao servidor
                 const req = await fetch("https://sanisjs-github-io.onrender.com/api/agro/consultar", {
-                    method: "POST", headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({ pergunta: txt, historico: historicoChat })
-                });
-
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ pergunta: txt, historico: historicoChat })
+});
                 const dados = await req.json();
 
                 if(dados.precisa_info) {
