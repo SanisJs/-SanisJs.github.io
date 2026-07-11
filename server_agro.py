@@ -1,9 +1,38 @@
 ﻿import os
 import json
 import logging
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pathlib import Path
+try:
+    from fastapi import FastAPI, HTTPException, Response
+    from fastapi.responses import FileResponse
+    from fastapi.middleware.cors import CORSMiddleware
+    from fastapi.staticfiles import StaticFiles
+except Exception:
+    # Fallback stubs so linters/IDEs won't error when fastapi isn't installed.
+    class FastAPI:
+        def __init__(self, *args, **kwargs):
+            raise ImportError("fastapi is required to run this application. Install it with 'pip install fastapi'.")
+
+    class HTTPException(Exception):
+        def __init__(self, status_code: int = 500, detail: str | None = None):
+            super().__init__(detail)
+
+    class Response:
+        def __init__(self, *args, **kwargs):
+            raise ImportError("fastapi is required to run this application. Install it with 'pip install fastapi'.")
+
+    class FileResponse:
+        def __init__(self, *args, **kwargs):
+            raise ImportError("fastapi is required to run this application. Install it with 'pip install fastapi'.")
+
+    class CORSMiddleware:
+        def __init__(self, *args, **kwargs):
+            raise ImportError("fastapi is required to run this application. Install it with 'pip install fastapi'.")
+
+    class StaticFiles:
+        def __init__(self, *args, **kwargs):
+            raise ImportError("fastapi is required to run this application. Install it with 'pip install fastapi'.")
+import pydantic
 from typing import List, Dict
 from groq import AsyncGroq
 from dotenv import load_dotenv
@@ -13,6 +42,9 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY", "gsk_XUk07DexU5L1z0cm8Nf8WGdyb3FYYuNgRu
 
 app = FastAPI(title="ETEMAR AGRO - Logic Engine")
 logging.getLogger('uvicorn.access').setLevel(logging.WARNING)
+@app.get("/")
+async def rota_principal():
+    return {"status": "Online", "sistema": "E.T.E.M.A.R Agro Engine", "versao": "2.0"}
 
 app.add_middleware(
     CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
@@ -20,14 +52,29 @@ app.add_middleware(
 
 client = AsyncGroq(api_key=GROQ_API_KEY)
 
-class ConsultaAgro(BaseModel):
+@app.get('/favicon.ico')
+async def favicon():
+    return Response(status_code=204)
+
+@app.get('/')
+async def root():
+    return FileResponse(Path(__file__).resolve().parent / 'index.html')
+
+@app.get('/index.html')
+async def index_html():
+    return FileResponse(Path(__file__).resolve().parent / 'index.html')
+
+app.mount("/static", StaticFiles(directory=Path(__file__).resolve().parent), name="static")
+
+class ConsultaAgro(pydantic.BaseModel):
     pergunta: str
     historico: List[Dict[str, str]] = []
 
 @app.post("/api/agro/consultar")
 async def consultar_ia_agro(req: ConsultaAgro):
+    print(f"[API] /api/agro/consultar called with pergunta={req.pergunta!r}, historico_items={len(req.historico)}")
     if len(req.pergunta) < 2:
-        raise HTTPException(status_code=400, detail="Entrada vazia.")
+        raise HTTPException(status_code=400, detail="Entrada vazia. A pergunta deve conter pelo menos 2 caracteres.")
 
     # PROMPT DE ALTO NÍVEL: O JSON do financeiro agora é estruturado
     prompt_sistema = """Você é o Pesquisador Chefe de Agronomia do sistema E.T.E.M.A.R. 
