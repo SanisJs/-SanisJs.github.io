@@ -134,7 +134,7 @@ async def consultar_ia_agro(req: ConsultaAgro):
     try:
         res = await client.chat.completions.create(
             messages=mensagens,
-            model="llama-3.3-70b-versatile",
+            model="llama-3.1-8b-instant",
             max_tokens=4500, 
             temperature=0.3,
             response_format={"type": "json_object"}
