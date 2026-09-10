@@ -38,7 +38,7 @@ from groq import AsyncGroq
 from dotenv import load_dotenv
 
 load_dotenv()
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "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")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "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")
 
 app = FastAPI(title="ETEMAR AGRO - Logic Engine")
 logging.getLogger('uvicorn.access').setLevel(logging.WARNING)
