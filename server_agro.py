@@ -41,7 +41,7 @@ HF_TOKEN = os.getenv("HF_TOKEN", "") # Chave da Hugging Face para o Plano B (Pou
 if not GROQ_API_KEY:
     raise RuntimeError("Defina GROQ_API_KEY no arquivo .env (GROQ_API_KEY=sua_chave).")
 
-MODELO = "llama-3.3-70b-versatile"
+MODELO = "llama3-70b-8192"
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 RAG_MAX_DIST = float(os.getenv("RAG_MAX_DIST", "0.55"))   # distância de cosseno; menor = mais parecido
 CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()]
