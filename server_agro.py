@@ -177,13 +177,24 @@ def limpar_historico(hist: List[Dict[str, str]]) -> List[Dict[str, str]]:
 
 
 # --------------------------------------------------------------------------- chamada à IA
+# --------------------------------------------------------------------------- chamada à IA
 async def chamar_llm(mensagens: List[dict], max_tokens: int, temperature: float = 0.1) -> dict:
     ultimo: Optional[Exception] = None
     for tentativa in range(2):
         res = await client.chat.completions.create(
             messages=mensagens, model=MODELO, max_tokens=max_tokens, temperature=temperature,
             response_format={"type": "json_object"})
+        
         txt = (res.choices[0].message.content or "").strip()
+        
+        # BLINDAGEM ANTI-QUEBRA DE JSON (Tira os blocos Markdown que a IA inventa)
+        if txt.startswith("```json"):
+            txt = txt[7:].strip()
+        if txt.startswith("```"):
+            txt = txt[3:].strip()
+        if txt.endswith("```"):
+            txt = txt[:-3].strip()
+
         try:
             dado = json.loads(txt)
             if isinstance(dado, dict):
@@ -191,7 +202,7 @@ async def chamar_llm(mensagens: List[dict], max_tokens: int, temperature: float 
         except json.JSONDecodeError as e:
             ultimo = e
         log.warning("JSON inválido do modelo (tentativa %s): %s", tentativa + 1, ultimo)
-    raise ValueError("O modelo não devolveu JSON válido.")
+    raise ValueError("O modelo não devolveu JSON válido após as tentativas.")
 
 
 # --------------------------------------------------------------------------- 1) extração de fatos
