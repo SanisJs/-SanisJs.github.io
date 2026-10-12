@@ -1,11 +1,11 @@
-﻿"""
+"""
 E.T.E.M.A.R Agro - motor de lógica + RAG (v4)
 
 Fluxo de cada consulta:
   1. Extrai os FATOS que o produtor disse (sem inventar nada).
   2. Se faltar dado essencial, pergunta (texto fixo, sem IA).
   3. Busca clima real (clima.py) e CONFERE o relato do produtor com regras fixas.
-  4. Busca trechos relevantes nos PDFs (RAG), com nome do arquivo e página.
+  4. Busca trechos relevantes nos PDFs (RAG), com nome do arquivo e página (Via API para poupar RAM).
   5. A IA escreve o diagnóstico usando só dados verificados.
   6. Números (financeiro, gráficos, fontes) são montados pelo código, não pela IA.
 """
@@ -36,8 +36,11 @@ log = logging.getLogger("etemar")
 
 BASE = Path(__file__).resolve().parent
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+HF_TOKEN = os.getenv("HF_TOKEN", "") # Chave da Hugging Face para o Plano B (Poupar RAM)
+
 if not GROQ_API_KEY:
-    raise RuntimeError("Defina GROQ_API_KEY no arquivo .env (GROQ_API_KEY=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).")
+    raise RuntimeError("Defina GROQ_API_KEY no arquivo .env (GROQ_API_KEY=sua_chave).")
+
 MODELO = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 RAG_MAX_DIST = float(os.getenv("RAG_MAX_DIST", "0.55"))   # distância de cosseno; menor = mais parecido
@@ -48,23 +51,41 @@ banco_vetorial = None
 DIAS_SEMANA = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado", "domingo"]
 
 
-# --------------------------------------------------------------------------- banco de PDFs (RAG)
+# --------------------------------------------------------------------------- banco de PDFs (RAG - PLANO B)
 def carregar_banco():
     global banco_vetorial
+    
+    if os.getenv("USAR_RAG", "1").strip().lower() in ("0", "false", "nao", "não", "off"):
+        log.info("RAG desligado (USAR_RAG=0): o servidor roda sem a base de PDFs.")
+        return
+        
     pasta = BASE / "banco_conhecimento"
     if not pasta.exists():
         log.warning("Pasta 'banco_conhecimento' não existe. Rode alimentar_ia.py para indexar seus PDFs.")
         return
+        
+    if not HF_TOKEN:
+        log.warning("HF_TOKEN não encontrado! A busca nos PDFs pode falhar se o Render bloquear acesso anônimo.")
+        
     try:
-        from langchain_huggingface import HuggingFaceEmbeddings
+        # PLANO B APLICADO AQUI: Usando a Inference API para não gastar 2GB de RAM do Render
+        from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
         try:
             from langchain_chroma import Chroma
         except ImportError:
             from langchain_community.vectorstores import Chroma
-        emb = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL, encode_kwargs={"normalize_embeddings": True})
-        banco_vetorial = Chroma(persist_directory=str(pasta), embedding_function=emb,
-                                collection_metadata={"hnsw:space": "cosine"})
-        log.info("Banco de conhecimento (PDFs) carregado.")
+            
+        emb = HuggingFaceInferenceAPIEmbeddings(
+            api_key=HF_TOKEN,
+            model_name=EMBEDDING_MODEL
+        )
+        
+        banco_vetorial = Chroma(
+            persist_directory=str(pasta), 
+            embedding_function=emb,
+            collection_metadata={"hnsw:space": "cosine"}
+        )
+        log.info(">> Banco de conhecimento (PDFs) carregado via Nuvem (Zero RAM).")
     except Exception:
         log.exception("Erro ao carregar o banco de conhecimento")
 
@@ -107,7 +128,7 @@ app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS, allow_credentials
 # --------------------------------------------------------------------------- rotas simples
 @app.get("/api/status")
 async def rota_status():
-    return {"status": "Online", "sistema": "E.T.E.M.A.R Agro Engine", "versao": "4.0",
+    return {"status": "Online", "sistema": "E.T.E.M.A.R Agro Engine", "versao": "4.0 + Cloud RAG",
             "banco_pdfs": banco_vetorial is not None, "modelo": MODELO}
 
 
@@ -122,8 +143,6 @@ async def index_html():
     return FileResponse(BASE / "index.html")
 
 
-# IMPORTANTE: antes a pasta do projeto inteira era publicada em /static (inclusive .env e este código).
-# Agora só existe /static se você criar uma pasta "static" com os arquivos públicos (css, js, imagens).
 if (BASE / "static").is_dir():
     app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
 
@@ -142,7 +161,6 @@ async def clima_teste(municipio: str = "Petrolina", uf: str = "PE", dias: int = 
 class ConsultaAgro(BaseModel):
     pergunta: str = Field(..., min_length=2, max_length=3000)
     historico: List[Dict[str, str]] = Field(default_factory=list)
-    # Opcionais: se o front enviar, o cálculo financeiro usa; senão o sistema NÃO chuta valores.
     produtividade_t_ha: Optional[float] = Field(None, gt=0, le=500)
     preco_kg: Optional[float] = Field(None, gt=0, le=1000)
     perda_pct: Optional[float] = Field(None, ge=0, le=100)
