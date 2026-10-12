@@ -41,7 +41,7 @@ HF_TOKEN = os.getenv("HF_TOKEN", "") # Chave da Hugging Face para o Plano B (Pou
 if not GROQ_API_KEY:
     raise RuntimeError("Defina GROQ_API_KEY no arquivo .env (GROQ_API_KEY=sua_chave).")
 
-MODELO = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+MODELO = "llama-3.3-70b-versatile"
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 RAG_MAX_DIST = float(os.getenv("RAG_MAX_DIST", "0.55"))   # distância de cosseno; menor = mais parecido
 CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()]
@@ -176,8 +176,7 @@ def limpar_historico(hist: List[Dict[str, str]]) -> List[Dict[str, str]]:
     return limpo
 
 
-# --------------------------------------------------------------------------- chamada à IA
-# --------------------------------------------------------------------------- chamada à IA
+
 async def chamar_llm(mensagens: List[dict], max_tokens: int, temperature: float = 0.1) -> dict:
     ultimo: Optional[Exception] = None
     for tentativa in range(2):
