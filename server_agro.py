@@ -36,12 +36,12 @@ log = logging.getLogger("etemar")
 
 BASE = Path(__file__).resolve().parent
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-HF_TOKEN = os.getenv("HF_TOKEN", "") # Chave da Hugging Face para o Plano B (Poupar RAM)
+HF_TOKEN = os.getenv("HF_TOKEN", "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") # Chave da Hugging Face para o Plano B (Poupar RAM)
 
 if not GROQ_API_KEY:
     raise RuntimeError("Defina GROQ_API_KEY no arquivo .env (GROQ_API_KEY=sua_chave).")
 
-MODELO = "llama3-70b-8192"
+MODELO = "openai/gpt-oss-120b"
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 RAG_MAX_DIST = float(os.getenv("RAG_MAX_DIST", "0.55"))   # distância de cosseno; menor = mais parecido
 CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()]
