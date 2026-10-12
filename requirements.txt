@@ -1,11 +1,13 @@
 fastapi
-uvicorn
-pydantic
+uvicorn[standard]
 groq
+httpx
 python-dotenv
-langchain
-langchain-community
+pydantic
 langchain-huggingface
+langchain-community
+langchain-chroma
+langchain-text-splitters
 chromadb
 pypdf
 sentence-transformers
